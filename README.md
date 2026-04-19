@@ -35,7 +35,6 @@ extend.
   required at runtime; the plugin uses only the Neovim standard API.
 - A coverage report somewhere up the directory tree from the buffer's file.
   The plugin walks up looking for, in order:
-
   1. `coverage.out`
   2. `cover.out`
   3. `coverage/lcov.info`
@@ -50,13 +49,13 @@ extend.
 
 This plugin has been developed and verified on the following stack:
 
-| Component         | Version                                 |
-| ----------------- | --------------------------------------- |
-| OS                | macOS (Apple Silicon)                   |
-| Shell             | zsh                                     |
-| Neovim            | 0.12.1 (works on any 0.10+)             |
-| Plugin manager    | [lazy.nvim](https://github.com/folke/lazy.nvim) inside [LazyVim](https://www.lazyvim.org/) |
-| Test runner       | `nvim --headless -l` driven by `bash`   |
+| Component      | Version                                                                                    |
+| -------------- | ------------------------------------------------------------------------------------------ |
+| OS             | macOS (Apple Silicon)                                                                      |
+| Shell          | zsh                                                                                        |
+| Neovim         | 0.12.1 (works on any 0.10+)                                                                |
+| Plugin manager | [lazy.nvim](https://github.com/folke/lazy.nvim) inside [LazyVim](https://www.lazyvim.org/) |
+| Test runner    | `nvim --headless -l` driven by `bash`                                                      |
 
 It should also work on Linux/WSL with Bash and any Neovim ≥ 0.10. It does
 not depend on any platform-specific binaries — all parsing and rendering is
@@ -134,15 +133,6 @@ return {
 }
 ```
 
-What each field does:
-
-| Field    | Why it's there                                                                 |
-| -------- | ------------------------------------------------------------------------------ |
-| `"hrmeetsingh/coverage-hints.nvim"` | GitHub `owner/repo` — lazy.nvim clones from there. |
-| `event = "BufReadPost"`             | Defers loading until you actually open a file.     |
-| `opts = {}`                         | Triggers `require("coverage-hints").setup({})` for you. |
-| `keys = { ... }`                    | Lazy-binds the mappings; the plugin is loaded the first time you press one. |
-
 #### Step 3 — (Optional) Add a which-key group label
 
 So `<leader>tc` shows up as a "coverage" group in the popup. In the **same**
@@ -176,6 +166,7 @@ return {
    ```
 
    Look for `coverage-hints.nvim` in the list with a green checkmark.
+
 3. Open any source file in a project that has a coverage report and run:
 
    ```vim
@@ -250,6 +241,7 @@ require("lazy").setup({
 
    You should see `coverage-hints.nvim` cloned into
    `~/.local/share/nvim/lazy/coverage-hints.nvim`.
+
 3. Open a buffer in a project that has a coverage report and run:
 
    ```vim
@@ -367,14 +359,14 @@ cargo llvm-cov --lcov --output-path lcov.info
 
 ## Keymaps and commands
 
-| Mapping             | Action                                  |
-| ------------------- | --------------------------------------- |
-| `<leader>tch`       | Toggle coverage hints in current buffer |
-| `<leader>tcs`       | Show hints                              |
-| `<leader>tcx`       | Hide hints                              |
-| `<leader>tcr`       | Refresh (clear cache and re-render)     |
-| `]u`                | Jump to next uncovered line             |
-| `[u`                | Jump to previous uncovered line         |
+| Mapping       | Action                                  |
+| ------------- | --------------------------------------- |
+| `<leader>tch` | Toggle coverage hints in current buffer |
+| `<leader>tcs` | Show hints                              |
+| `<leader>tcx` | Hide hints                              |
+| `<leader>tcr` | Refresh (clear cache and re-render)     |
+| `]u`          | Jump to next uncovered line             |
+| `[u`          | Jump to previous uncovered line         |
 
 User command:
 
@@ -411,12 +403,12 @@ so they follow your colorscheme automatically.
 Starting from the directory of the current buffer, the plugin walks **up**
 toward `/`, returning the first match from this list:
 
-| Filename               | Format |
-| ---------------------- | ------ |
-| `coverage.out`         | Go     |
-| `cover.out`            | Go     |
-| `coverage/lcov.info`   | LCOV   |
-| `lcov.info`            | LCOV   |
+| Filename             | Format |
+| -------------------- | ------ |
+| `coverage.out`       | Go     |
+| `cover.out`          | Go     |
+| `coverage/lcov.info` | LCOV   |
+| `lcov.info`          | LCOV   |
 
 The result is cached per-project keyed by mtime; re-parsing only happens when
 the file changes (or you call `:CoverageHints refresh`).
