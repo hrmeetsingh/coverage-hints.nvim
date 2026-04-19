@@ -11,27 +11,66 @@ extend.
   (works with any tool emitting LCOV: Jest, c8, vitest, pytest-cov,
   cargo-llvm-cov, etc.).
 - Sign-column glyph on every uncovered line, plus an end-of-line hint on the
-  first line of each contiguous range:
-  `▎ func Mul(a, b int) int {                ◌ uncovered — add case in sample_test.go`
+  first line of each contiguous range. Example of how an uncovered Go function
+  looks in your buffer:
+
+  ```text
+  ▎ func Mul(a, b int) int {                ◌ uncovered — add case in sample_test.go
+  ▎     return a * b
+  ▎ }
+  ```
+
 - Suggests the conventional test file (`foo_test.go`, `foo.test.ts`,
   `test_foo.py`, …) and flags it as `(missing)` when the file does not exist
   yet.
 - `]u` / `[u` motions to jump between uncovered lines (mirrors `]d` / `[d`).
 - Toggle / show / hide / refresh via keymap or `:CoverageHints` user command.
 - Per-buffer state, mtime-cached parsing, no background processes, zero
-  external dependencies.
+  external runtime dependencies.
 
 ## Requirements
 
-- Neovim ≥ 0.10 (uses `vim.api.nvim_buf_set_extmark` with `sign_text`).
+- **Neovim ≥ 0.10** — uses `vim.api.nvim_buf_set_extmark` with `sign_text`
+  and `vim.uv` (with a fallback to `vim.loop`). No other Lua libraries are
+  required at runtime; the plugin uses only the Neovim standard API.
 - A coverage report somewhere up the directory tree from the buffer's file.
   The plugin walks up looking for, in order:
+
   1. `coverage.out`
   2. `cover.out`
   3. `coverage/lcov.info`
   4. `lcov.info`
 
   The format is inferred from the filename.
+
+- To run the test suite locally: **Bash 4+** and **Neovim** in `PATH`. No
+  plenary, busted, or other test framework required.
+
+## Tested environments
+
+This plugin has been developed and verified on the following stack:
+
+| Component         | Version                                 |
+| ----------------- | --------------------------------------- |
+| OS                | macOS (Apple Silicon)                   |
+| Shell             | zsh                                     |
+| Neovim            | 0.12.1 (works on any 0.10+)             |
+| Plugin manager    | [lazy.nvim](https://github.com/folke/lazy.nvim) inside [LazyVim](https://www.lazyvim.org/) |
+| Test runner       | `nvim --headless -l` driven by `bash`   |
+
+It should also work on Linux/WSL with Bash and any Neovim ≥ 0.10. It does
+not depend on any platform-specific binaries — all parsing and rendering is
+pure Lua via the Neovim API.
+
+Per-language **examples** in this README additionally assume:
+
+- **Go** examples — Go 1.18+ (and optionally [Ginkgo](https://github.com/onsi/ginkgo) for the alt example).
+- **JS/TS** examples — Node.js 18+ with one of `jest`, `vitest`, or `c8`.
+- **Python** examples — Python 3.8+ with [`coverage.py`](https://coverage.readthedocs.io/) and `pytest`.
+- **Rust** examples — Rust 1.70+ with [`cargo-llvm-cov`](https://github.com/taiki-e/cargo-llvm-cov).
+
+None of these are required to use the plugin itself — they're only needed to
+generate the coverage report for the language you're working in.
 
 ## Installation
 
@@ -74,15 +113,39 @@ Then in your Lua config: `require("coverage-hints").setup()`.
 
 ## Usage
 
-1. Generate a coverage report with your language's test runner (see the
-   per-language section below).
-2. Open any source file in your project.
-3. Press `<leader>tch` (or run `:CoverageHints toggle`).
-4. Sign-column markers appear on uncovered lines, with a hint at the end of the
-   first line of each contiguous range telling you which test file to extend.
-5. Use `]u` / `[u` to jump between uncovered lines.
-6. After re-running tests, press `<leader>tcr` to clear the cache and
-   re-render with fresh data.
+End-to-end example for a Go project (the same flow applies to any language —
+just swap step 1 for the matching command from the per-language section):
+
+```bash
+cd ~/code/my-go-project
+go test -coverprofile=coverage.out ./...
+nvim ./pkg/foo/foo.go
+```
+
+Inside Neovim:
+
+```vim
+" Toggle the hint overlay on the current buffer
+<leader>tch
+" or, equivalently
+:CoverageHints toggle
+
+" Jump between uncovered lines
+]u
+[u
+
+" After re-running `go test`, refresh the cached report
+<leader>tcr
+```
+
+What you'll see:
+
+- Sign-column markers appear on uncovered lines.
+- A hint at the end of the first line of each contiguous uncovered range
+  tells you which test file to extend (and `(missing)` when the test file
+  doesn't exist yet).
+- `<leader>tcs` shows hints, `<leader>tcx` hides them, `<leader>tcr` refreshes
+  after a fresh test run.
 
 ## Per-language quickstart
 
@@ -145,11 +208,15 @@ cargo llvm-cov --lcov --output-path lcov.info
 
 User command:
 
+```vim
+:CoverageHints              " same as :CoverageHints toggle
+:CoverageHints toggle
+:CoverageHints show
+:CoverageHints hide
+:CoverageHints refresh
+:CoverageHints next
+:CoverageHints prev
 ```
-:CoverageHints {toggle|show|hide|refresh|next|prev}
-```
-
-(Defaults to `toggle` when called with no argument.)
 
 ## Configuration
 
