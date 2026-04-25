@@ -119,7 +119,7 @@ paste:
 return {
   {
     "hrmeetsingh/coverage-hints.nvim",
-    event = "BufReadPost",
+    event = "VeryLazy",
     opts = {},
     keys = {
       { "<leader>tch", function() require("coverage-hints").toggle()  end, desc = "Coverage: toggle hints" },
@@ -203,7 +203,7 @@ Inside the table you pass to `require("lazy").setup({...})`, add:
 ```lua
 {
   "hrmeetsingh/coverage-hints.nvim",
-  event = "BufReadPost",
+  event = "VeryLazy",
   opts = {},
   keys = {
     { "<leader>tch", function() require("coverage-hints").toggle()  end, desc = "Coverage: toggle hints" },
@@ -223,7 +223,7 @@ require("lazy").setup({
   -- ...your existing plugins...
   {
     "hrmeetsingh/coverage-hints.nvim",
-    event = "BufReadPost",
+    event = "VeryLazy",
     opts = {},
     keys = { --[[ as above ]] },
   },
